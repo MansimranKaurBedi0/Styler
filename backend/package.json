@@ -10,8 +10,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/vision": "^5.3.4",
+    "@huggingface/inference": "^4.13.8",
+    "axios": "^1.13.2",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "sharp": "^0.34.5"
   }
 }

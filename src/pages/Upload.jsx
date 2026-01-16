@@ -13,19 +13,29 @@ export default function Upload() {
       setFile(file);
     }
   }
-  async function handleSubmit(e) {
+  async function handleSubmit() {
     try {
+      if (!files) {
+        alert("Please select an image");
+        return;
+      }
+
       setLoading(true);
+
       const formData = new FormData();
       formData.append("image", files);
-      await axios.post("http://localhost:5001/upload", formData);
-      const analysis = await axios.post("http://localhost:5001/analyze-style");
+
+      const analysis = await axios.post(
+        "http://localhost:5001/analyze-style",
+        formData,
+      );
+
       setLoading(false);
+
       navigate("/result", {
         state: {
           image,
-          score: analysis.data.score,
-          suggestions: analysis.data.suggestions,
+          analysis: analysis.data, // 👈 backend ka pura data
         },
       });
     } catch (err) {
@@ -34,6 +44,7 @@ export default function Upload() {
       alert("Something went wrong");
     }
   }
+
   return (
     <>
       <h1>Upload your Image</h1>
