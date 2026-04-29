@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
 export default function Upload() {
   const [files, setFile] = useState(null);
   const [image, setImage] = useState(null);
+  const [selectedItems, setSelectedItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const categories = ["Shirt", "Pants", "Dress", "Shoes", "Bag", "Accessories", "Jacket"];
+
   function handleImage(e) {
     const file = e.target.files[0];
     if (file) {
@@ -13,6 +18,15 @@ export default function Upload() {
       setFile(file);
     }
   }
+
+  function toggleItem(item) {
+    if (selectedItems.includes(item)) {
+      setSelectedItems(selectedItems.filter((i) => i !== item));
+    } else {
+      setSelectedItems([...selectedItems, item]);
+    }
+  }
+
   async function handleSubmit() {
     try {
       if (!files) {
@@ -35,25 +49,50 @@ export default function Upload() {
       navigate("/result", {
         state: {
           image,
-          analysis: analysis.data, // 👈 backend ka pura data
+          analysis: analysis.data,
+          clothingType: selectedItems.join(" and "),
         },
       });
     } catch (err) {
       setLoading(false);
       console.error(err);
-      alert("Something went wrong");
+      const errorMessage = err.response?.data?.message || "Something went wrong";
+      alert("Error: " + errorMessage);
     }
   }
 
   return (
-    <>
-      <h1>Upload your Image</h1>
-      <input type="file" onChange={handleImage} accept="image/*"></input>
-      {image && <img src={image} alt="preview"></img>}
-      <br></br>
-      <button onClick={handleSubmit} disabled={loading}>
-        {loading ? "Analyzing..." : "Get Style Score"}
+    <div className="glass-card">
+      <h1>AI Style Analyzer ✨</h1>
+      <p>Upload your outfit and get expert styling advice.</p>
+      
+      <div className="file-input-wrapper">
+        <button className="file-input-btn">
+          {image ? "Change Image" : "📸 Choose Image"}
+        </button>
+        <input type="file" onChange={handleImage} accept="image/*" />
+      </div>
+
+      {image && <img src={image} alt="preview" className="image-preview" />}
+      
+      <div style={{ marginTop: "15px" }}>
+        <h3>What items are in this look?</h3>
+        <div className="pill-container">
+          {categories.map((cat) => (
+            <button 
+              key={cat}
+              className={`pill ${selectedItems.includes(cat) ? "active" : ""}`}
+              onClick={() => toggleItem(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
+        {loading ? "Analyzing Style..." : "Get Style Score & Ideas"}
       </button>
-    </>
+    </div>
   );
 }
